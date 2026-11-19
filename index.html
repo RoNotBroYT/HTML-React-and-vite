@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React in HTML</title>
+
+    <!-- Tailwind, compiled in the browser (no build step) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.5"></script>
+
+    <!-- React and htm: htm gives JSX-like templates without a compiler -->
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@19.3.1",
+          "react-dom/client": "https://esm.sh/react-dom@19.3.1/client",
+          "htm": "https://esm.sh/htm@3.1.1"
+        }
+      }
+    </script>
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-surface: #ffffff;
+        --color-ink: #0a0a0a;
+        --color-muted: #71717a;
+        --color-line: #e4e4e7;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --color-surface: #09090b;
+          --color-ink: #fafafa;
+          --color-muted: #a1a1aa;
+          --color-line: #27272a;
+        }
+      }
+      body {
+        @apply m-0 bg-surface font-sans text-ink;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <script type="module">
+      import { createElement, useState } from "react"
+      import { createRoot } from "react-dom/client"
+      import htm from "htm"
+
+      const html = htm.bind(createElement)
+
+      function Button({ variant = "solid", className = "", ...props }) {
+        const styles =
+          variant === "solid"
+            ? "bg-ink text-surface hover:opacity-90"
+            : "border border-line hover:bg-line/40"
+        return html`<button
+          class="inline-flex h-9 items-center justify-center rounded-md px-4 text-sm font-medium transition-colors disabled:opacity-50 ${styles} ${className}"
+          ...${props}
+        />`
+      }
+
+      function Card({ children }) {
+        return html`<div class="rounded-xl border border-line p-6 shadow-sm">${children}</div>`
+      }
+
+      function App() {
+        const [count, setCount] = useState(0)
+
+        return html`
+          <main class="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 p-6">
+            <${Card}>
+              <h1 class="text-xl font-semibold tracking-tight">React in one HTML file</h1>
+              <p class="mt-1 text-sm text-muted">No npm, no build. Edit this file and reload.</p>
+              <div class="mt-6 flex gap-3">
+                <${Button} onClick=${() => setCount((c) => c + 1)}>Count is ${count}</${Button}>
+                <${Button} variant="outline" onClick=${() => setCount(0)}>Reset</${Button}>
+              </div>
+            </${Card}>
+          </main>
+        `
+      }
+
+      createRoot(document.getElementById("root")).render(html`<${App} />`)
+    </script>
+  </body>
+</html>
